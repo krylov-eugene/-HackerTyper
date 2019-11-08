@@ -1,33 +1,30 @@
 #include <SFML/Graphics.hpp>
 #include <fstream>
 
-#include <iostream>
 
 class DrawableObject {
     public:
+    virtual ~DrawableObject(){}
 
-    virtual void Draw(){
+    virtual void Draw(sf::RenderWindow* window){}
 
-    }
-   
 };
 class GraphicManager{
     public:
 
         ~GraphicManager(){
-            for(int i = 0;i< number_of_objects;++i){
-                delete[] objects[i];
+            for(int i = 0;i< amount_of_objects;++i){
+
+                //delete[] objects[i];
             }
 
             delete[] objects;
         }
-        
+        void DrawAll(sf::RenderWindow* window){
 
-        void DrawAll(){
-
-            for(int i = 0 ;i<number_of_objects;++i){
+            for(int i = 0 ;i<amount_of_objects;++i){
                 
-                (*(objects[i])).Draw();
+                (*(objects[i])).Draw(window);
                 
             }
         }
@@ -35,13 +32,13 @@ class GraphicManager{
             objects[number_of_input_object] = object;
             
         }
-        void SetNumberOfObjectsAndDoArray(int number_of_objects_input){
-            number_of_objects = number_of_objects_input;
-            objects = new DrawableObject*[number_of_objects];
+        void SetNumberOfObjectsAndDoArray(int amount_of_objects_input){
+            amount_of_objects = amount_of_objects_input;
+            objects = new DrawableObject*[amount_of_objects];
         }
         
     private:
-        int number_of_objects ;
+        int amount_of_objects ;
         DrawableObject **objects ;
 };
 /*class Window{
@@ -55,7 +52,7 @@ class GraphicManager{
     }
 
     sf::RenderWindow* window;
-};
+}; 
 class Text{
     public:
     ~Text(){
@@ -66,16 +63,14 @@ class Text{
     sf::Text* text;
 
 };*/
-class txt:public DrawableObject {
+class Txt:public DrawableObject {
     public:
-        ~txt(){
+        ~Txt(){
 
             delete[] txt;
-            delete[] text;
-            delete[] window;
+            
         }
-
-        void Draw(){
+        void Draw(sf::RenderWindow* window){
 
             (*text).setString(txt);
             (*window).clear();
@@ -86,21 +81,19 @@ class txt:public DrawableObject {
         void SetTxt(char* txt_input){
             txt = txt_input;
         }
+        void SetText(sf::Text* text_input){
 
+            text=text_input;
 
-        sf::RenderWindow* window;
-        sf::Text* text;
+        }
+
     private:
-    
+        sf::Text* text;
         char* txt;
 };
 
 void RecalculateArray(char* txt,char* words,int& TXT_COUNTER,int& WORD_COUNTER){
 
-    words[WORD_COUNTER]=txt[TXT_COUNTER];
-    TXT_COUNTER++;WORD_COUNTER++;
-    words[WORD_COUNTER]=txt[TXT_COUNTER];
-    TXT_COUNTER++;WORD_COUNTER++;
     words[WORD_COUNTER]=txt[TXT_COUNTER];
     TXT_COUNTER++;WORD_COUNTER++;
     words[WORD_COUNTER]='\0';
@@ -155,9 +148,9 @@ void RefreshWindow (char* txt,char* words,const int size_of_txt ,int& TXT_COUNTE
 
     }
 }
-void DrawAll(class GraphicManager&  manager ){
+void DrawAll(class GraphicManager& manager ,sf::RenderWindow* window){
 
-    manager.DrawAll();
+    manager.DrawAll(window);
 
 }
 char* ReadFromFile(int& size_of_txt,char name_of_file[]){
@@ -176,20 +169,15 @@ char* ReadFromFile(int& size_of_txt,char name_of_file[]){
 }
 
 int main(){
-    setlocale(LC_ALL,"Rus");
 
     sf::RenderWindow window(sf::VideoMode(1500,1000),".");
     window.setKeyRepeatEnabled(false);
-    //class Window Window;
-    //Window.SetWindow(&window);
+
 
     int size_of_txt = 0;
     char* txt = ReadFromFile(size_of_txt,"abc.txt");
     char* words = new char[size_of_txt];
-    class txt Word;
-    Word.SetTxt(words); 
-    
-    
+   
     
     sf::Font font;
     if ( !font.loadFromFile( "Arial.ttf" ) ){
@@ -202,12 +190,14 @@ int main(){
     text.setFont(font);
     text.setCharacterSize(24);
     text.setColor(sf::Color::Green);
-    //class Text Text;
-    //Text.text=&text;
-    Word.text = &text;
-    Word.window = &window;
+    
 
-    class GraphicManager manager;
+    Txt Word;
+    Word.SetTxt(words); 
+    Word.SetText(&text);
+
+
+    GraphicManager manager;
     manager.SetNumberOfObjectsAndDoArray(1);
     manager.Register(&Word,0);
 
@@ -236,9 +226,10 @@ int main(){
 
         RefreshWindow(txt,words,size_of_txt,TXT_COUNTER,WORD_COUNTER,NUMBER_OF_LINE_TRANSFERS,IS_A_BUTTON_PRESSED);
         
-        DrawAll(manager);
+        DrawAll(manager,&window);
     }
 
  delete []txt;
- delete []words;
+ //delete []words;
  return 0;
+}
